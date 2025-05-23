@@ -32,13 +32,25 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         print("API error:", e)
         return
 
-    if data.get("status") == "found":
-        reply = f"""🎬 *{data['movie_name']}*
+   if data.get("status") == "found":
+        keyboard = []
 
-📎 Link: {data['movie_link']}
-📝 Description: {data['movie_paragraph']}"""
-        await update.message.reply_text(reply, parse_mode="Markdown")
-        notify_admin = f"✅ User @{username} searched: *{user_query}* - Found match"
+        for quality in ['360p', '480p', '720p', '1080p']:
+            link = data.get(f"link_{quality}")
+            if link:
+                keyboard.append(
+                    InlineKeyboardButton(text=f"{quality} Download", url=link)
+                )
+
+        reply_markup = InlineKeyboardMarkup.from_column(keyboard)
+
+        message = f"""🎬 *{data['movie_name']}*
+
+📝 {data['movie_paragraph']}
+
+⬇️ Select Quality Below:"""
+        await update.message.reply_text(message, parse_mode="Markdown", reply_markup=reply_markup)
+        notify_admin = f"✅ User @{username} searched: *{user_query}* - Found match with qualities"
 
     else:
         await update.message.reply_text("❌ Movie not found. Please check again after 24 hours.")
