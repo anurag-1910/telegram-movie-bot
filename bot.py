@@ -58,17 +58,17 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             suggested = cursor.fetchone()
 
             if suggested and not suggested['movie_link']:
-                msg = f"🔍 Found similar movie: *{matched_movie}*
+                msg = f"""🔍 Found similar movie: *{matched_movie}*
 ❌ But the link is not uploaded yet.
-⏳ Check again in 24 hours."
+⏳ Check again in 24 hours."""
                 await update.message.reply_text(msg, parse_mode="Markdown")
 
                 notify_admin = f"⚠️ User @{username} searched for *{user_query}*.
 Suggested: *{matched_movie}*, but link is missing."
             else:
-                msg = f"🔍 Found similar movie: *{matched_movie}*
+                msg = f"""🔍 Found similar movie: *{matched_movie}*
 📎 Link: {suggested['movie_link']}
-📝 {suggested['movie_paragraph']}"
+📝 {suggested['movie_paragraph']}"""
                 await update.message.reply_text(msg, parse_mode="Markdown")
                 notify_admin = f"✅ User @{username} searched: *{user_query}*, suggested: *{matched_movie}*"
 
