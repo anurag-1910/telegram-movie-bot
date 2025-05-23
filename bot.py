@@ -42,10 +42,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                        (user_id, username, user_query, movie['movie_name']))
         conn.commit()
 
-        reply = f"🎬 *{movie['movie_name']}*
+        reply = f"""🎬 *{movie['movie_name']}*
 
 📎 Link: {movie['movie_link']}
-📝 Description: {movie['movie_paragraph']}"
+📝 Description: {movie['movie_paragraph']}"""
         await update.message.reply_text(reply, parse_mode="Markdown")
     else:
         cursor.execute("SELECT movie_name FROM movies")
