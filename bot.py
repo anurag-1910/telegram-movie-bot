@@ -63,8 +63,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 ⏳ Check again in 24 hours."""
                 await update.message.reply_text(msg, parse_mode="Markdown")
 
-                notify_admin = f"⚠️ User @{username} searched for *{user_query}*.
-Suggested: *{matched_movie}*, but link is missing."
+                notify_admin = f"""⚠️ User @{username} searched for *{user_query}*.
+Suggested: *{matched_movie}*, but link is missing."""
             else:
                 msg = f"""🔍 Found similar movie: *{matched_movie}*
 📎 Link: {suggested['movie_link']}
