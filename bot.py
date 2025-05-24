@@ -57,14 +57,14 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             await update.message.reply_text(caption, parse_mode="Markdown", reply_markup=reply_markup)
 
-        notify_admin = f"✅ User @{username} searched: *{user_query}* - Found match"
+        notify_admin = f"User @{username} searched: {user_query} — Match found"
     else:
         await update.message.reply_text("❌ Movie not found. Please check again after 24 hours.")
-        notify_admin = f"❌ User @{username} searched: *{user_query}* - Not found"
+        notify_admin = f"User @{username} searched: {user_query} — No match found"
 
     # Notify Admin
     try:
-        await context.bot.send_message(chat_id=ADMIN_CHAT_ID, text=notify_admin, parse_mode="Markdown")
+        await context.bot.send_message(chat_id=ADMIN_CHAT_ID, text=notify_admin)  # 👈 No parse_mode
     except Exception as e:
         print("Failed to notify admin:", e)
 
