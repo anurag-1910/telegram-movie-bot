@@ -10,8 +10,9 @@ TOKEN = os.getenv("BOT_TOKEN")
 # Admin Telegram username
 ADMIN_USERNAME = "anurag_1938"
 
-# PHP API endpoint
+# API Endpoints
 API_ENDPOINT = "https://go.trustearn.in/bot/get_movie.php"
+LOG_ENDPOINT = "https://go.trustearn.in/bot/log_query.php"
 
 # Start Command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -22,8 +23,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_query = update.message.text.strip()
     user_id = update.message.from_user.id
     username = update.message.from_user.username or "unknown"
+    matched_movie = None
+    is_found = 0
 
-    # Call your PHP API to fetch movie
     try:
         response = requests.get(API_ENDPOINT, params={"name": user_query})
         data = response.json()
@@ -33,34 +35,50 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if data.get("status") == "found":
-        keyboard = []
+        matched_movie = data.get("movie_name")
+        is_found = 1
 
-        for quality in ['360p', '480p', '720p', '1080p']:
+        keyboard = []
+        for quality in ['360p', '480p', '720p', '1080p', '2k', '4k']:
             link = data.get(f"link_{quality}")
             if link:
-                keyboard.append(
-                    InlineKeyboardButton(text=f"{quality} Download", url=link)
-                )
+                keyboard.append(InlineKeyboardButton(text=f"{quality.upper()} Download", url=link))
 
         reply_markup = InlineKeyboardMarkup.from_column(keyboard)
 
-        message = f"""🎬 *{data['movie_name']}*
+        caption = f"""🎬 *{matched_movie}*
 
 📝 {data['movie_paragraph']}
 
 ⬇️ Select Quality Below:"""
-        await update.message.reply_text(message, parse_mode="Markdown", reply_markup=reply_markup)
-        notify_admin = f"✅ User @{username} searched: *{user_query}* - Found match with qualities"
 
+        if data.get("poster"):
+            await update.message.reply_photo(photo=data['poster'], caption=caption, parse_mode="Markdown", reply_markup=reply_markup)
+        else:
+            await update.message.reply_text(caption, parse_mode="Markdown", reply_markup=reply_markup)
+
+        notify_admin = f"✅ User @{username} searched: *{user_query}* - Found match"
     else:
         await update.message.reply_text("❌ Movie not found. Please check again after 24 hours.")
         notify_admin = f"❌ User @{username} searched: *{user_query}* - Not found"
 
-    # Notify Admin
+    # Send to Admin
     try:
         await context.bot.send_message(chat_id=f"@{ADMIN_USERNAME}", text=notify_admin, parse_mode="Markdown")
     except Exception as e:
         print("Failed to notify admin:", e)
+
+    # Save query to database
+    try:
+        requests.post(LOG_ENDPOINT, json={
+            "user_id": user_id,
+            "username": username,
+            "query_text": user_query,
+            "matched_movie": matched_movie,
+            "is_found": is_found
+        })
+    except Exception as e:
+        print("Failed to log query:", e)
 
 # Main
 if __name__ == '__main__':
