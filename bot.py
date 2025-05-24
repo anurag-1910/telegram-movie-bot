@@ -7,8 +7,8 @@ from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, fil
 # Bot Token from environment
 TOKEN = os.getenv("BOT_TOKEN")
 
-# Admin Telegram username
-ADMIN_USERNAME = "anurag_1938"
+# Admin Telegram ID
+ADMIN_CHAT_ID = 1772086574  # replace with your actual ID
 
 # API Endpoints
 API_ENDPOINT = "https://go.trustearn.in/bot/get_movie.php"
@@ -62,11 +62,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("❌ Movie not found. Please check again after 24 hours.")
         notify_admin = f"❌ User @{username} searched: *{user_query}* - Not found"
 
-    # Send to Admin
-    try:
-        await context.bot.send_message(chat_id=f"@{ADMIN_USERNAME}", text=notify_admin, parse_mode="Markdown")
-    except Exception as e:
-        print("Failed to notify admin:", e)
+    # Notify Admin
+try:
+    await context.bot.send_message(chat_id=ADMIN_CHAT_ID, text=notify_admin, parse_mode="Markdown")
+except Exception as e:
+    print("Failed to notify admin:", e)
 
     # Save query to database
     try:
