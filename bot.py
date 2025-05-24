@@ -63,10 +63,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         notify_admin = f"❌ User @{username} searched: *{user_query}* - Not found"
 
     # Notify Admin
-try:
-    await context.bot.send_message(chat_id=ADMIN_CHAT_ID, text=notify_admin, parse_mode="Markdown")
-except Exception as e:
-    print("Failed to notify admin:", e)
+    try:
+        await context.bot.send_message(chat_id=ADMIN_CHAT_ID, text=notify_admin, parse_mode="Markdown")
+    except Exception as e:
+        print("Failed to notify admin:", e)
 
     # Save query to database
     try:
